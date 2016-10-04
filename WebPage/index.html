@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+	table, th, td {
+		border: 1px solid black;
+		border-collapse: collapse;
+		padding: 4px;
+	}
+	body { 
+		white-space: pre-wrap;
+	}
+	</style>
+	
+	<script>// src="http://maps.google.com/maps/api/js?key=AIzaSyAkhLaY8qYdZ-YaIjvbh-evJYNpM00an2g">
+		var xhttp = new XMLHttpRequest();
+		var jsonData;
+		function yellAboutIt(){
+			console.log(jsonData);
+		}
+		
+		function gDMGet( gDMlink ) {
+			var xhttpLocal = xhttp
+			xhttpLocal.open("GET", "http://mc.wargarresearchlabs.com/defGDMurl?"+ gDMlink, true);
+						
+			xhttpLocal.onload = function() {
+				jsonData = JSON.parse(this.responseText);
+				yellAboutIt();
+			};
+						
+			xhttpLocal.send();
+		}
+			
+	</script>
+</head>
+
+<body >
+		
+	<h1 align="center"> Dis page not dun don't look hard plz. </a></h1>
+		
+	<div align="center" >
+		<div style="white-space:normal;">
+			<table id="OriginInputTable" style="display:inline-table;">
+				<tr>
+					<th>Row</th>
+					<th>Origin Latitude</th>
+					<th>Origin Longitude</th>
+				</tr>
+				<tr>
+					<td id="rownum">1</td>
+					<td><input type="text" id="olat" value="34.5680" onkeyup="verifyLatLon( this )"></td>
+					<td><input type="text" id="olon" value="-84.9900" onkeyup="verifyLatLon( this )"></td>
+				</tr>
+			</table>
+			<table id="DestinationInputTable" style="display:inline-table;">
+				<tr>
+					<th>Destination Latitude</th>
+					<th>Destination Longitude</th>
+				</tr>
+				<tr>
+					<td><input type="text" id="dlat" value="35.5680" onkeyup="verifyLatLon( this )"></td>
+					<td><input type="text" id="dlon" value="-80.9900" onkeyup="verifyLatLon( this )"></td>
+				</tr>
+			</table>
+		</div>
+	<p style="color:blue;" id="inputErrorText">Input is valid</p> 
+	<p id="gdmlink"></p> 
+	<button onclick="sendToDistanceMatrix()">Build Distance Matrix</button>
+		
+	
+		<table id="DistanceMatrixOutputTable">
+			<tr>
+				<th>Row</th>
+				<th>Origin Latitude</th>
+				<th>Origin Longitude</th>
+				<th>Destination Latitude</th>
+				<th>Destination Longitude</th>
+				<th>Distance</th>
+				<th>time</th>
+			</tr>
+			<tr>
+				<td id="outputRow1Num">1</td>
+				<td	id="1Olat"></td>
+				<td id="1Olon"></td>
+				<td id="1Dlat"></td>
+				<td id="1Dlon"></td>
+				<td id="1Dist"></td>
+				<td id="1time"></td>
+			</tr>
+		</table>
+	</div>
+	
+	<script>
+		function verifyLatLon( input ){
+			var latLonRegEx = /^[+-]?(\d+(\.\d+)?|\.\d+)$/;
+			var errorTxt = document.getElementById("inputErrorText");
+			
+			if ( latLonRegEx.test( input.value ) ){
+				errorTxt.style="color:green;"
+				errorTxt.innerHTML = "Input is valid";
+				return;
+			} else{
+				errorTxt.style="color:red;"
+				errorTxt.innerHTML = "Some of the latitude/longitude fields have non-numeric characters present.  Only numbers and decimal points are allowed.";
+			}
+		}
+		function sendToDistanceMatrix(){
+			var errorTxt = document.getElementById("inputErrorText")
+			var gMapsDMQuery = "";
+			var originsString = "origins=";
+			var destinationsString = "destinations=";
+			
+			var oTable = document.getElementById("OriginInputTable");
+			var dTable = document.getElementById("DestinationInputTable");
+			var oCoords = oTable.getElementsByTagName("input");
+			var dCoords = dTable.getElementsByTagName("input");
+			
+			if (errorTxt.innerHTML != "Input is valid"){
+				errorTxt.style="color:red;"
+				errorTxt.innerHTML = "fix errors before building distance matrix";
+				return;			
+			}
+				
+			originsString = originsString.concat( oCoords[0].value , "," , oCoords[1].value );
+			
+			for (i = 1, j = oCoords.length; 2 * i < j ; i++ ){
+				originsString = originsString.concat("|" , oCoords[i].value , "," , oCoords[i+1].value );
+			}
+			
+			destinationsString = destinationsString.concat( dCoords[0].value , "," , dCoords[1].value );
+			
+			for (i = 1, j = dCoords.length; 2 * i < j ; i++ ){
+				destinationsString = destinationsString.concat("|" , dCoords[i].value , "," , dCoords[i+1].value );
+			}
+			
+			gMapsDMQuery = gMapsDMQuery.concat( originsString, "&" , destinationsString );
+			gDMGet( gMapsDMQuery );
+			document.getElementById("gdmlink").innerHTML = gMapsDMQuery;
+		}
+		
+		
+	</script>
+	
+</body>
+
+</html>
