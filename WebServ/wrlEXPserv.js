@@ -1,7 +1,8 @@
 var express = require('express');
 var app = express();
-var http = require('http');
+var https = require('https');
 var time = new Date();
+
 
 var apiKey = "key=AIzaSyCv1BG9dYbjn5eyiBtL54yUwuz-ywZv-U8";
 var gMapsDM = "https://maps.googleapis.com/maps/api/distancematrix/json?";
@@ -15,16 +16,24 @@ var requestLog = function (req, res, next) {
 	next();
 }
 
+
 app.use(requestLog);
 app.use('/', express.static("C:\\webzone\\webpage") );
 
-app.get('/defGDMurl', function( req, res) {
+app.get('/defGDMurl', function( clientReq, clientRes, next) {
 	var gdmRegEx = /origins=.*/;
-	var gDMurl = req.url.match(gdmRegEx)[0];
+	var gDMurl = clientReq.url.match(gdmRegEx)[0];
+		
 	gmdmQuery= gMapsDM + gDMurl + "&" + apiKey;
-	console.log(gmdmQuery);
 	
+	
+	https.get( gmdmQuery , function(res){
+		res.pipe(clientRes, { end: 'true' });
+	})
 });
+
+
+
 
 app.listen(80, function(){
 	console.log("express test on port 80");
